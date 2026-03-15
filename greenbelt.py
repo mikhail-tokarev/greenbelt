@@ -4,7 +4,7 @@ greenbelt.py — Claude Code token usage hook.
 
 Configured as a Stop hook in .claude/settings.json.
 Reads session data from stdin (JSON), extracts token counts,
-appends a record to ~/.claude/token_usage.jsonl, and prints a summary.
+appends a record to ~/.claude/greenbelt.jsonl, and prints a summary.
 """
 
 import json
@@ -14,8 +14,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 # Where to store accumulated usage records.
-# Defaults to ~/.claude/token_usage.jsonl but can be overridden via env var.
-LOG_PATH = Path(os.environ.get("GREENBELT_LOG", Path.home() / ".claude" / "token_usage.jsonl"))
+# Defaults to ~/.claude/greenbelt.jsonl but can be overridden via env var.
+LOG_PATH = Path(os.environ.get("GREENBELT_LOG", Path.home() / ".claude" / "greenbelt.jsonl"))
 
 # Pricing per 1M tokens (USD) — update when Anthropic changes rates.
 PRICING = {
