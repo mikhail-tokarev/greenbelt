@@ -17,35 +17,6 @@ from pathlib import Path
 # Defaults to ~/.claude/greenbelt.jsonl but can be overridden via env var.
 LOG_PATH = Path(os.environ.get("GREENBELT_LOG", Path.home() / ".claude" / "greenbelt.jsonl"))
 
-# Pricing per 1M tokens (USD) — update when Anthropic changes rates.
-PRICING = {
-    "claude-opus-4-6":   {"input": 5.00,  "output": 25.00, "cache_write": 6.25, "cache_read": 0.50},
-    "claude-sonnet-4-6": {"input": 3.00,  "output": 15.00, "cache_write": 3.75, "cache_read": 0.30},
-    "claude-haiku-4-5":  {"input": 1.00,  "output": 5.00,  "cache_write": 1.25, "cache_read": 0.10},
-}
-DEFAULT_PRICING = {"input": 5.00, "output": 25.00, "cache_write": 6.25, "cache_read": 0.50}
-
-
-def cost_usd(usage: dict, model: str) -> float:
-    """Calculate cost in USD from a usage dict."""
-    rates = PRICING.get(model, DEFAULT_PRICING)
-    input_tokens         = usage.get("input_tokens", 0)
-    output_tokens        = usage.get("output_tokens", 0)
-    cache_write_tokens   = usage.get("cache_creation_input_tokens", 0)
-    cache_read_tokens    = usage.get("cache_read_input_tokens", 0)
-
-    # Cache-write tokens are billed instead of (not in addition to) input tokens
-    billable_input = input_tokens - cache_write_tokens - cache_read_tokens
-    billable_input = max(billable_input, 0)
-
-    total = (
-        billable_input       * rates["input"]       / 1_000_000
-        + cache_write_tokens * rates["cache_write"] / 1_000_000
-        + cache_read_tokens  * rates["cache_read"]  / 1_000_000
-        + output_tokens      * rates["output"]      / 1_000_000
-    )
-    return round(total, 6)
-
 
 def extract_usage(data: dict) -> tuple[dict, str]:
     """
@@ -121,7 +92,6 @@ def main() -> None:
 
     session_id = data.get("session_id", "unknown")
     cwd        = data.get("cwd", "")
-    cost       = cost_usd(usage, model)
     now        = datetime.now(timezone.utc).isoformat()
 
     record = {
@@ -134,7 +104,6 @@ def main() -> None:
         "cache_creation_input_tokens": usage["cache_creation_input_tokens"],
         "cache_read_input_tokens":     usage["cache_read_input_tokens"],
         "total_tokens":               total_tokens,
-        "cost_usd":                   cost,
     }
 
     append_record(record)
@@ -148,7 +117,6 @@ def main() -> None:
         f"  input:        {format_tokens(usage['input_tokens'])} tokens\n"
         f"  output:       {format_tokens(usage['output_tokens'])} tokens\n"
         f"{cache_line}"
-        f"  estimated:    ${cost:.4f}\n"
         f"  logged to:    {LOG_PATH}"
     )
 
