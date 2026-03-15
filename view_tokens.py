@@ -18,7 +18,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-LOG_PATH = Path(os.environ.get("TOKEN_MONITOR_LOG", Path.home() / ".claude" / "token_usage.jsonl"))
+LOG_PATH = Path(os.environ.get("GREENBELT_LOG", Path.home() / ".claude" / "greenbelt.jsonl"))
 
 
 def load_records(since: datetime | None = None) -> list[dict]:
