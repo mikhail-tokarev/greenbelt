@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /home/user/greenbelt/token_monitor.py"
+            "command": "python3 /Users/tokarev/work/greenbelt/greenbelt.py"
           }
         ]
       }
@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /home/user/greenbelt/token_monitor.py"
+            "command": "python3 /Users/tokarev/work/greenbelt/greenbelt.py"
           }
         ]
       }
