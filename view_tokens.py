@@ -50,9 +50,6 @@ def fmt_tokens(n: int) -> str:
     return str(n)
 
 
-def fmt_cost(c: float) -> str:
-    return f"${c:.4f}" if c < 1 else f"${c:.2f}"
-
 
 def summarise(records: list[dict]) -> dict:
     if not records:
@@ -64,7 +61,6 @@ def summarise(records: list[dict]) -> dict:
         "cache_read":    sum(r.get("cache_read_input_tokens", 0) for r in records),
         "cache_write":   sum(r.get("cache_creation_input_tokens", 0) for r in records),
         "total_tokens":  sum(r.get("total_tokens", 0) for r in records),
-        "cost_usd":      sum(r.get("cost_usd", 0.0) for r in records),
     }
     return s
 
@@ -80,11 +76,10 @@ def print_summary(label: str, s: dict) -> None:
     print(f"  Input tokens:  {fmt_tokens(s['input_tokens'])}")
     print(f"  Output tokens: {fmt_tokens(s['output_tokens'])}")
     if s["cache_read"]:
-        print(f"  Cache reads:   {fmt_tokens(s['cache_read'])} (saved ~{fmt_cost(s['cache_read'] * 0.0000045)})")
+        print(f"  Cache reads:   {fmt_tokens(s['cache_read'])}")
     if s["cache_write"]:
         print(f"  Cache writes:  {fmt_tokens(s['cache_write'])}")
     print(f"  Total tokens:  {fmt_tokens(s['total_tokens'])}")
-    print(f"  Estimated cost:{fmt_cost(s['cost_usd'])}")
     print(f"{'='*50}")
 
 
@@ -93,16 +88,15 @@ def print_sessions(records: list[dict]) -> None:
         print("No sessions found.")
         return
     print(f"\n{'─'*80}")
-    print(f"  {'Timestamp':<25} {'Session':<10} {'Model':<20} {'Tokens':>8} {'Cost':>8}")
-    print(f"{'─'*80}")
+    print(f"  {'Timestamp':<25} {'Session':<10} {'Model':<20} {'Tokens':>8}")
+    print(f"{'─'*70}")
     for r in sorted(records, key=lambda x: x.get("timestamp", ""), reverse=True):
         ts  = r.get("timestamp", "")[:19].replace("T", " ")
         sid = r.get("session_id", "")[:8] + "…"
         mdl = r.get("model", "unknown")[:18]
         tok = fmt_tokens(r.get("total_tokens", 0))
-        cst = fmt_cost(r.get("cost_usd", 0.0))
-        print(f"  {ts:<25} {sid:<10} {mdl:<20} {tok:>8} {cst:>8}")
-    print(f"{'─'*80}")
+        print(f"  {ts:<25} {sid:<10} {mdl:<20} {tok:>8}")
+    print(f"{'─'*70}")
 
 
 def print_by_model(records: list[dict]) -> None:
@@ -111,14 +105,13 @@ def print_by_model(records: list[dict]) -> None:
         by_model[r.get("model", "unknown")].append(r)
 
     print(f"\n{'─'*60}")
-    print(f"  {'Model':<25} {'Sessions':>8} {'Tokens':>10} {'Cost':>10}")
-    print(f"{'─'*60}")
+    print(f"  {'Model':<25} {'Sessions':>8} {'Tokens':>10}")
+    print(f"{'─'*50}")
     for model, recs in sorted(by_model.items()):
         s   = summarise(recs)
         tok = fmt_tokens(s["total_tokens"])
-        cst = fmt_cost(s["cost_usd"])
-        print(f"  {model:<25} {s['sessions']:>8} {tok:>10} {cst:>10}")
-    print(f"{'─'*60}")
+        print(f"  {model:<25} {s['sessions']:>8} {tok:>10}")
+    print(f"{'─'*50}")
 
 
 def main() -> None:
@@ -160,8 +153,7 @@ def main() -> None:
     # Always show log file location
     total_all = summarise(load_records())
     if total_all:
-        all_cost = fmt_cost(total_all["cost_usd"])
-        print(f"\n  All-time total: {fmt_tokens(total_all['total_tokens'])} tokens | {all_cost}")
+        print(f"\n  All-time total: {fmt_tokens(total_all['total_tokens'])} tokens")
     print(f"  Log: {LOG_PATH}\n")
 
 
