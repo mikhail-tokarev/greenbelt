@@ -3,8 +3,9 @@
 greenbelt.py — Claude Code token usage hook.
 
 Configured as a Stop hook in .claude/settings.json.
-Reads session data from stdin (JSON), extracts token counts,
-appends a record to ~/.claude/greenbelt.jsonl, and prints a summary.
+Reads session data from stdin (JSON), extracts token counts from the
+transcript JSONL file, appends a record to ~/.claude/greenbelt.jsonl,
+and prints a summary.
 """
 
 import json
@@ -18,20 +19,24 @@ from pathlib import Path
 LOG_PATH = Path(os.environ.get("GREENBELT_LOG", Path.home() / ".claude" / "greenbelt.jsonl"))
 
 
-def extract_usage(data: dict) -> tuple[dict, str]:
+def extract_usage(transcript_path: str) -> tuple[dict, str]:
     """
-    Extract token usage and model from the Stop hook payload.
+    Extract token usage and model from the transcript JSONL file.
 
-    Claude Code sends a payload with at minimum:
+    Each line in the file is a JSON object. Assistant messages have the form:
       {
-        "session_id": "...",
-        "stop_hook_active": true,
-        "transcript": [...],   # list of messages
-        ...
+        "type": "assistant",
+        "message": {
+          "role": "assistant",
+          "model": "claude-...",
+          "usage": {
+            "input_tokens": ...,
+            "output_tokens": ...,
+            "cache_creation_input_tokens": ...,
+            "cache_read_input_tokens": ...
+          }
+        }
       }
-
-    Usage is accumulated from all assistant messages in the transcript.
-    The model is read from the most recent assistant message.
     """
     usage = {
         "input_tokens": 0,
@@ -41,18 +46,29 @@ def extract_usage(data: dict) -> tuple[dict, str]:
     }
     model = "unknown"
 
-    # Top-level usage field (present in some versions of the hook payload)
-    if "usage" in data and isinstance(data["usage"], dict):
-        for key in usage:
-            usage[key] += data["usage"].get(key, 0)
+    path = Path(transcript_path).expanduser()
+    if not path.exists():
+        return usage, model
 
-    # Walk transcript for per-message usage
-    for message in data.get("transcript", []):
-        msg_usage = message.get("usage", {})
-        for key in usage:
-            usage[key] += msg_usage.get(key, 0)
-        if message.get("role") == "assistant" and "model" in message:
-            model = message["model"]
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                entry = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+            if entry.get("type") != "assistant":
+                continue
+
+            msg = entry.get("message", {})
+            msg_usage = msg.get("usage", {})
+            for key in usage:
+                usage[key] += msg_usage.get(key, 0)
+            if "model" in msg:
+                model = msg["model"]
 
     return usage, model
 
@@ -74,7 +90,6 @@ def format_tokens(n: int) -> str:
 def main() -> None:
     raw = sys.stdin.read().strip()
     if not raw:
-        # No payload — nothing to log.
         return
 
     try:
@@ -83,7 +98,11 @@ def main() -> None:
         print(f"[greenbelt] Could not parse hook payload: {e}", file=sys.stderr)
         return
 
-    usage, model = extract_usage(data)
+    transcript_path = data.get("transcript_path", "")
+    if not transcript_path:
+        return
+
+    usage, model = extract_usage(transcript_path)
 
     # Skip sessions with zero tokens (e.g., aborted before any API call)
     total_tokens = usage["input_tokens"] + usage["output_tokens"]
