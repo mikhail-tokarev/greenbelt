@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-token_monitor.py — Claude Code token usage hook.
+greenbelt.py — Claude Code token usage hook.
 
 Configured as a Stop hook in .claude/settings.json.
 Reads session data from stdin (JSON), extracts token counts,
@@ -109,7 +109,7 @@ def main() -> None:
     try:
         data = json.loads(raw)
     except json.JSONDecodeError as e:
-        print(f"[token_monitor] Could not parse hook payload: {e}", file=sys.stderr)
+        print(f"[greenbelt] Could not parse hook payload: {e}", file=sys.stderr)
         return
 
     usage, model = extract_usage(data)
@@ -143,7 +143,7 @@ def main() -> None:
     cache_saved = usage["cache_read_input_tokens"]
     cache_line  = f"  cache read:   {format_tokens(cache_saved)} tokens\n" if cache_saved else ""
     print(
-        f"\n[token_monitor] Session {session_id[:8]}…\n"
+        f"\n[greenbelt] Session {session_id[:8]}…\n"
         f"  model:        {model}\n"
         f"  input:        {format_tokens(usage['input_tokens'])} tokens\n"
         f"  output:       {format_tokens(usage['output_tokens'])} tokens\n"

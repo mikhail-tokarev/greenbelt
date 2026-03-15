@@ -132,7 +132,7 @@ def main() -> None:
 
     if not LOG_PATH.exists():
         print(f"No usage log found at {LOG_PATH}")
-        print("Run a Claude Code session with the token_monitor hook to start tracking.")
+        print("Run a Claude Code session with the greenbelt hook to start tracking.")
         sys.exit(0)
 
     # Determine time filter
