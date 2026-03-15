@@ -15,7 +15,7 @@ from pathlib import Path
 
 # Where to store accumulated usage records.
 # Defaults to ~/.claude/token_usage.jsonl but can be overridden via env var.
-LOG_PATH = Path(os.environ.get("TOKEN_MONITOR_LOG", Path.home() / ".claude" / "token_usage.jsonl"))
+LOG_PATH = Path(os.environ.get("GREENBELT_LOG", Path.home() / ".claude" / "token_usage.jsonl"))
 
 # Pricing per 1M tokens (USD) — update when Anthropic changes rates.
 PRICING = {
