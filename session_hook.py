@@ -2,13 +2,15 @@
 
 import json
 import os
+import sqlite3
 import sys
+import time
 from datetime import datetime
 from datetime import UTC
 from pathlib import Path
 
 
-LOG_PATH = Path(os.environ.get("GREENBELT_LOG", Path.home() / ".claude" / "greenbelt.jsonl")) 
+LOG_PATH = Path(os.environ.get("GREENBELT_LOG", Path.home() / ".claude" / "greenbelt.db")) 
 
 
 def calculate_used_tokens(transcript_path: str) -> int:
@@ -31,14 +33,39 @@ def calculate_used_tokens(transcript_path: str) -> int:
     return used_tokens
 
 
+def init_db(db_path: Path) -> None:
+    conn = sqlite3.connect(db_path, timeout=30)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA synchronous=NORMAL")
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS usage_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            session_id TEXT NOT NULL,
+            used_tokens INTEGER NOT NULL
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_usage_events_timestamp ON usage_events(timestamp)")
+    conn.close()
+
+
 def append_usage(*, session_id: str, used_tokens: int) -> None:
-    record = {
-        "timestamp": datetime.now(UTC).isoformat(timespec="seconds"),
-        "session_id": session_id,
-        "used_tokens": used_tokens,
-    }
-    with open(LOG_PATH, "a", encoding="utf-8") as f:
-        f.write(json.dumps(record) + "\n")
+    max_retries = 5
+    for attempt in range(max_retries):
+        try:
+            conn = sqlite3.connect(LOG_PATH, timeout=30)
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA synchronous=NORMAL")
+            with conn:
+                conn.execute("INSERT INTO usage_events (timestamp, session_id, used_tokens) VALUES (?, ?, ?)",
+                             (datetime.now(UTC).isoformat(timespec="seconds"), session_id, used_tokens))
+            conn.close()
+            break
+        except sqlite3.OperationalError as e:
+            if "database is locked" in str(e) and attempt < max_retries - 1:
+                time.sleep(0.1 * (2 ** attempt))  # exponential backoff
+            else:
+                raise
 
 
 def main() -> None:
@@ -65,6 +92,7 @@ def main() -> None:
 
     used_tokens = calculate_used_tokens(input_data["transcript_path"])
     if used_tokens > 0:
+        init_db(LOG_PATH)
         append_usage(
             session_id=input_data["session_id"],
             used_tokens=used_tokens,
