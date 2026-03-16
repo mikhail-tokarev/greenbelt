@@ -10,7 +10,7 @@ from datetime import UTC
 from pathlib import Path
 
 
-LOG_PATH = Path(os.environ.get("GREENBELT_LOG", Path.home() / ".claude" / "greenbelt.db")) 
+DB_PATH = Path(os.environ.get("GREENBELT_DB", Path.home() / ".claude" / "greenbelt.db")) 
 
 
 def calculate_used_tokens(transcript_path: str) -> int:
@@ -40,25 +40,25 @@ def init_db(db_path: Path) -> None:
     conn.execute("""
         CREATE TABLE IF NOT EXISTS usage_events (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp TEXT NOT NULL,
             session_id TEXT NOT NULL,
-            used_tokens INTEGER NOT NULL
+            used_tokens INTEGER NOT NULL,
+            created_at TEXT NOT NULL,
         )
     """)
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_usage_events_timestamp ON usage_events(timestamp)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_usage_events_created_at ON usage_events(created_at)")
     conn.close()
 
 
-def append_usage(*, session_id: str, used_tokens: int) -> None:
+def append_usage(*, session_id: str, used_tokens: int, timestamp: datetime) -> None:
     max_retries = 5
     for attempt in range(max_retries):
         try:
-            conn = sqlite3.connect(LOG_PATH, timeout=30)
+            conn = sqlite3.connect(DB_PATH, timeout=30)
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA synchronous=NORMAL")
             with conn:
-                conn.execute("INSERT INTO usage_events (timestamp, session_id, used_tokens) VALUES (?, ?, ?)",
-                             (datetime.now(UTC).isoformat(timespec="seconds"), session_id, used_tokens))
+                conn.execute("INSERT INTO usage_events (session_id, used_tokens, created_at) VALUES (?, ?, ?)",
+                             (session_id, used_tokens, timestamp))
             conn.close()
             break
         except sqlite3.OperationalError as e:
@@ -92,10 +92,11 @@ def main() -> None:
 
     used_tokens = calculate_used_tokens(input_data["transcript_path"])
     if used_tokens > 0:
-        init_db(LOG_PATH)
+        init_db(DB_PATH)
         append_usage(
             session_id=input_data["session_id"],
             used_tokens=used_tokens,
+            timestamp=datetime.now(UTC),
         )
 
 
