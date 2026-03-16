@@ -33,8 +33,8 @@ def calculate_used_tokens(transcript_path: str) -> int:
     return used_tokens
 
 
-def init_db(db_path: Path) -> None:
-    conn = sqlite3.connect(db_path, timeout=30)
+def init_db() -> None:
+    conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")
     conn.execute("""
@@ -50,22 +50,13 @@ def init_db(db_path: Path) -> None:
 
 
 def append_usage(*, session_id: str, used_tokens: int, timestamp: datetime) -> None:
-    max_retries = 5
-    for attempt in range(max_retries):
-        try:
-            conn = sqlite3.connect(DB_PATH, timeout=30)
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA synchronous=NORMAL")
-            with conn:
-                conn.execute("INSERT INTO usage_events (session_id, used_tokens, created_at) VALUES (?, ?, ?)",
-                             (session_id, used_tokens, timestamp))
-            conn.close()
-            break
-        except sqlite3.OperationalError as e:
-            if "database is locked" in str(e) and attempt < max_retries - 1:
-                time.sleep(0.1 * (2 ** attempt))  # exponential backoff
-            else:
-                raise
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA synchronous=NORMAL")
+    with conn:
+        conn.execute("INSERT INTO usage_events (session_id, used_tokens, created_at) VALUES (?, ?, ?)",
+                        (session_id, used_tokens, timestamp))
+    conn.close()
 
 
 def main() -> None:
@@ -91,7 +82,7 @@ def main() -> None:
         sys.exit(0)
 
     if not DB_PATH.exists():
-        init_db(DB_PATH)
+        init_db()
 
     used_tokens = calculate_used_tokens(input_data["transcript_path"])
     if used_tokens > 0:
