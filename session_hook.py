@@ -90,9 +90,11 @@ def main() -> None:
     if input_data["hook_event_name"] != "SessionEnd":
         sys.exit(0)
 
+    if not DB_PATH.exists():
+        init_db(DB_PATH)
+
     used_tokens = calculate_used_tokens(input_data["transcript_path"])
     if used_tokens > 0:
-        init_db(DB_PATH)
         append_usage(
             session_id=input_data["session_id"],
             used_tokens=used_tokens,
