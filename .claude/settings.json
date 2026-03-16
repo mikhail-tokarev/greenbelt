@@ -1,21 +1,11 @@
 {
   "hooks": {
-    "Stop": [
+    "SessionEnd": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /Users/tokarev/work/greenbelt/greenbelt.py"
-          }
-        ]
-      }
-    ],
-    "SubagentStop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 /Users/tokarev/work/greenbelt/greenbelt.py"
+            "command": "python3 /Users/tokarev/work/greenbelt/session_hook.py"
           }
         ]
       }
