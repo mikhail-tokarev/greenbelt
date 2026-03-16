@@ -10,7 +10,7 @@ from datetime import UTC
 from pathlib import Path
 
 
-DB_PATH = Path(os.environ.get("GREENBELT_DB", Path.home() / ".claude" / "greenbelt.db")) 
+DB_PATH = Path(os.environ.get("GREENBELT_DB", Path.home() / ".claude" / "greenbelt.sqlite3")) 
 
 
 def calculate_used_tokens(transcript_path: str) -> int:
@@ -42,7 +42,7 @@ def init_db(db_path: Path) -> None:
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             session_id TEXT NOT NULL,
             used_tokens INTEGER NOT NULL,
-            created_at TEXT NOT NULL,
+            created_at TEXT NOT NULL
         )
     """)
     conn.execute("CREATE INDEX IF NOT EXISTS idx_usage_events_created_at ON usage_events(created_at)")
