@@ -1,7 +1,5 @@
 # Greenbelt 🌱
 
-## Goal
-
 Greenbelt tracks token usage across Claude Code sessions and plants trees whenever your token usage crosses a configurable threshold. It runs as a Claude Code hook — no manual steps required after setup.
 
 ## Get started
