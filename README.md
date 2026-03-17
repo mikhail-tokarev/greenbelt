@@ -16,6 +16,9 @@ git clone https://github.com/mikhail-tokarev/greenbelt.git ~/.claude/greenbelt
 
 Add the following to your Claude Code settings (`~/.claude/settings.json`):
 
+> [!IMPORTANT]
+> Replace `/path/to/greenbelt` with the actual path where you cloned the repo.
+
 ```json
 {
   "hooks": {
@@ -42,8 +45,6 @@ Add the following to your Claude Code settings (`~/.claude/settings.json`):
   }
 }
 ```
-
-Replace `/path/to/greenbelt` with the actual path where you cloned the repo.
 
 **3. Configure Ecologi**
 
