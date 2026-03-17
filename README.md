@@ -1,7 +1,5 @@
 # Greenbelt 🌱
 
-## Goal
-
 Greenbelt tracks token usage across Claude Code sessions and plants trees whenever your token usage crosses a configurable threshold. It runs as a Claude Code hook — no manual steps required after setup.
 
 ## Get started
@@ -15,6 +13,9 @@ git clone https://github.com/mikhail-tokarev/greenbelt.git ~/.claude/greenbelt
 **2. Register the hooks**
 
 Add the following to your Claude Code settings (`~/.claude/settings.json`):
+
+> [!IMPORTANT]
+> Replace `/path/to/greenbelt` with the actual path where you cloned the repo.
 
 ```json
 {
@@ -42,8 +43,6 @@ Add the following to your Claude Code settings (`~/.claude/settings.json`):
   }
 }
 ```
-
-Replace `/path/to/greenbelt` with the actual path where you cloned the repo.
 
 **3. Configure Ecologi**
 
