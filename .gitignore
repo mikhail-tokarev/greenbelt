@@ -1,3 +1,6 @@
+# Claude
+.claude/*.local.json
+
 # Python
 __pycache__/
 *.py[cod]
