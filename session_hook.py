@@ -8,7 +8,9 @@ from datetime import datetime
 from datetime import UTC
 from pathlib import Path
 
-from db import append_usage, DB_PATH, get_total_trees, init_db
+from db import append_usage
+from db import get_total_trees
+from db import init_db
 
 
 CONFIG_PATH = Path(os.environ.get("GREENBELT_CONFIG", Path.home() / ".claude" / "greenbelt.toml"))
@@ -78,8 +80,7 @@ def main() -> None:
         print(f"[greenbelt] Failed to parse hook payload: {e}", file=sys.stderr)
         sys.exit(1)
 
-    if not DB_PATH.exists():
-        init_db()
+    init_db()
 
     match input_data["hook_event_name"]:
         case "SessionStart":

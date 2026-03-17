@@ -3,11 +3,16 @@ import sqlite3
 from datetime import datetime
 from pathlib import Path
 
+__all__ = [
+    "init_db",
+    "append_usage",
+    "get_total_trees",
+]
 
 DB_PATH = Path(os.environ.get("GREENBELT_DB", Path.home() / ".claude" / "greenbelt.sqlite3"))
 
 
-def _connect() -> sqlite3.Connection:
+def get_connection() -> sqlite3.Connection:
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")
@@ -15,7 +20,10 @@ def _connect() -> sqlite3.Connection:
 
 
 def init_db() -> None:
-    conn = _connect()
+    if DB_PATH.exists():
+        return    # assume it's already initialized
+
+    conn = get_connection()
     conn.execute("""
         CREATE TABLE IF NOT EXISTS usage_events (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,7 +46,7 @@ def init_db() -> None:
 
 
 def append_usage(*, session_id: str, used_tokens: int, timestamp: datetime) -> None:
-    conn = _connect()
+    conn = get_connection()
     with conn:
         conn.execute(
             "INSERT INTO usage_events (session_id, used_tokens, created_at) VALUES (?, ?, ?)",
@@ -48,7 +56,7 @@ def append_usage(*, session_id: str, used_tokens: int, timestamp: datetime) -> N
 
 
 def get_total_trees() -> int:
-    conn = _connect()
+    conn = get_connection()
     row = conn.execute("SELECT COALESCE(SUM(num_trees), 0) FROM planted_trees").fetchone()
     conn.close()
     return row[0]
