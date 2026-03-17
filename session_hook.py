@@ -4,13 +4,21 @@ import json
 import os
 import sqlite3
 import sys
-import time
+import tomllib
 from datetime import datetime
 from datetime import UTC
 from pathlib import Path
 
 
+CONFIG_PATH = Path(os.environ.get("GREENBELT_CONFIG", Path.home() / ".claude" / "greenbelt.toml"))
 DB_PATH = Path(os.environ.get("GREENBELT_DB", Path.home() / ".claude" / "greenbelt.sqlite3")) 
+
+CONFIG_TEMPLATE = """\
+provider = "ecologi"
+threshold = 1_000_000
+[ecologi]
+api_key = "" # get it from https://app.ecologi.com/impact-api
+"""
 
 
 def calculate_used_tokens(transcript_path: str) -> int:
@@ -54,36 +62,20 @@ def append_usage(*, session_id: str, used_tokens: int, timestamp: datetime) -> N
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")
     with conn:
-        conn.execute("INSERT INTO usage_events (session_id, used_tokens, created_at) VALUES (?, ?, ?)",
-                        (session_id, used_tokens, timestamp))
+        conn.execute(
+            "INSERT INTO usage_events (session_id, used_tokens, created_at) VALUES (?, ?, ?)",
+            (session_id, used_tokens, timestamp),
+        )
     conn.close()
 
 
-def main() -> None:
-    """
-    Claude Code sends a payload with at minimum:
-    ```
-    {
-        "session_id": "...",
-        "stop_hook_active": true,
-        "transcript_path": "...",
-        ...
-    }
-    ```
-    see https://code.claude.com/docs/en/hooks#common-input-fields
-    """
-    try: 
-        input_data = json.load(sys.stdin)
-    except json.JSONDecodeError as e:
-        print(f"[greenbelt] Failed to parse hook payload: {e}", file=sys.stderr)
-        sys.exit(1)
+def start_session(config: dict, input_data: dict) -> None:
+    total_trees = 0     # TODO calculate total trees based on DB data
+    message = f"🌱 You've planted {total_trees} trees simple by using Claude Code, helping reduce your CO2 impact!"
+    print(f'{{"continue": true, "systemMessage": "{message}"}}')
 
-    if input_data["hook_event_name"] != "SessionEnd":
-        sys.exit(0)
 
-    if not DB_PATH.exists():
-        init_db()
-
+def finish_session(config: dict, input_data: dict) -> None:
     used_tokens = calculate_used_tokens(input_data["transcript_path"])
     if used_tokens > 0:
         append_usage(
@@ -91,6 +83,37 @@ def main() -> None:
             used_tokens=used_tokens,
             timestamp=datetime.now(UTC),
         )
+
+
+def main() -> None:
+    """
+    See https://code.claude.com/docs/en/hooks#common-input-fields
+    """
+    try:
+        if not CONFIG_PATH.exists():
+            with open(CONFIG_PATH, "w") as f:
+                f.write(CONFIG_TEMPLATE)
+
+        with open(CONFIG_PATH, "rb") as f:
+            config = tomllib.load(f)
+    except tomllib.TOMLDecodeError as e:
+        print(f"[greenbelt] Failed to parse config: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        input_data = json.load(sys.stdin)
+    except json.JSONDecodeError as e:
+        print(f"[greenbelt] Failed to parse hook payload: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    if not DB_PATH.exists():
+        init_db()
+
+    match input_data["hook_event_name"]:
+        case "SessionStart":
+            start_session(config, input_data)
+        case "SessionEnd":
+            finish_session(config, input_data)
 
 
 if __name__ == "__main__":

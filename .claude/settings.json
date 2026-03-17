@@ -1,5 +1,15 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /Users/tokarev/work/greenbelt/session_hook.py"
+          }
+        ]
+      }
+    ],
     "SessionEnd": [
       {
         "hooks": [
