@@ -43,13 +43,13 @@ def calculate_used_tokens(transcript_path: str) -> int:
     return used_tokens
 
 
-def start_session() -> None:
+def print_progress() -> None:
     total_trees = get_total_trees()
     message = f"🌱 You've planted {total_trees} trees simple by using Claude Code, helping reduce your CO2 impact!"
     print(f'{{"continue": true, "systemMessage": "{message}"}}')
 
 
-def finish_session(config: dict, input_data: dict) -> None:
+def update_usage(config: dict, input_data: dict) -> None:
     used_tokens = calculate_used_tokens(input_data["transcript_path"])
     if used_tokens > 0:
         append_usage(
@@ -84,9 +84,9 @@ def main() -> None:
 
     match input_data["hook_event_name"]:
         case "SessionStart":
-            start_session()
+            print_progress()
         case "SessionEnd":
-            finish_session(config, input_data)
+            update_usage(config, input_data)
 
 
 if __name__ == "__main__":
