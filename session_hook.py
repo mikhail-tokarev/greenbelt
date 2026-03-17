@@ -51,12 +51,14 @@ def print_progress() -> None:
 
 def update_usage(config: dict, input_data: dict) -> None:
     used_tokens = calculate_used_tokens(input_data["transcript_path"])
-    if used_tokens > 0:
-        append_usage(
-            session_id=input_data["session_id"],
-            used_tokens=used_tokens,
-            timestamp=datetime.now(UTC),
-        )
+    if used_tokens == 0:
+        return
+
+    append_usage(
+        session_id=input_data["session_id"],
+        used_tokens=used_tokens,
+        timestamp=datetime.now(UTC),
+    )
 
 
 def main() -> None:
