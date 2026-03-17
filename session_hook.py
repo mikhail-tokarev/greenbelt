@@ -47,13 +47,22 @@ def init_db() -> None:
     conn.execute("PRAGMA synchronous=NORMAL")
     conn.execute("""
         CREATE TABLE IF NOT EXISTS usage_events (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            session_id TEXT NOT NULL,
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id  TEXT NOT NULL,
             used_tokens INTEGER NOT NULL,
-            created_at TEXT NOT NULL
+            created_at  TEXT NOT NULL
         )
     """)
     conn.execute("CREATE INDEX IF NOT EXISTS idx_usage_events_created_at ON usage_events(created_at)")
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS planted_trees (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            used_tokens INTEGER NOT NULL,
+            num_trees   INTEGER NOT NULL,
+            provider    TEXT    NOT NULL,
+            created_at  TEXT    NOT NULL
+        )
+    """)
     conn.close()
 
 
@@ -69,8 +78,17 @@ def append_usage(*, session_id: str, used_tokens: int, timestamp: datetime) -> N
     conn.close()
 
 
-def start_session(config: dict, input_data: dict) -> None:
-    total_trees = 0     # TODO calculate total trees based on DB data
+def get_total_trees() -> int:
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA synchronous=NORMAL")
+    row = conn.execute("SELECT COALESCE(SUM(num_trees), 0) FROM planted_trees").fetchone()
+    conn.close()
+    return row[0]
+
+
+def start_session() -> None:
+    total_trees = get_total_trees()
     message = f"🌱 You've planted {total_trees} trees simple by using Claude Code, helping reduce your CO2 impact!"
     print(f'{{"continue": true, "systemMessage": "{message}"}}')
 
@@ -111,7 +129,7 @@ def main() -> None:
 
     match input_data["hook_event_name"]:
         case "SessionStart":
-            start_session(config, input_data)
+            start_session()
         case "SessionEnd":
             finish_session(config, input_data)
 
