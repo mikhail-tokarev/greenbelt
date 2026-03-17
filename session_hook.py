@@ -47,13 +47,22 @@ def init_db() -> None:
     conn.execute("PRAGMA synchronous=NORMAL")
     conn.execute("""
         CREATE TABLE IF NOT EXISTS usage_events (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            session_id TEXT NOT NULL,
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id  TEXT NOT NULL,
             used_tokens INTEGER NOT NULL,
-            created_at TEXT NOT NULL
+            created_at  TEXT NOT NULL
         )
     """)
     conn.execute("CREATE INDEX IF NOT EXISTS idx_usage_events_created_at ON usage_events(created_at)")
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS planted_trees (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            used_tokens INTEGER NOT NULL,
+            num_trees   INTEGER NOT NULL,
+            provider    TEXT    NOT NULL,
+            created_at  TEXT    NOT NULL
+        )
+    """)
     conn.close()
 
 
