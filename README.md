@@ -1,6 +1,6 @@
 # Greenbelt 🌱
 
-Greenbelt tracks token usage across Claude Code sessions and plants trees whenever your token usage crosses a configurable threshold. It runs as a Claude Code hook — no manual steps required after setup.
+Greenbelt tracks token usage across Claude Code sessions and plants trees whenever your token usage crosses a configurable threshold. It uses [Ecologi API](https://ecologi.com/) and runs as a Claude Code hook — no manual steps required after setup.
 
 ## Get started
 
@@ -56,7 +56,7 @@ threshold = 1_000_000   # plant trees every 1M tokens
 api_key = ""            # get it from https://app.ecologi.com/impact-api
 ```
 
-Fill in your Ecologi API key. Adjust `threshold` to control how often trees are planted.
+Fill in your [Ecologi API](https://app.ecologi.com/impact-api) key. Adjust `threshold` to control how often trees are planted.
 
 **That's it.** From this point on, Greenbelt runs silently in the background. At the start of each session it shows how many trees you've planted so far.
 
@@ -76,3 +76,7 @@ rm ~/.claude/greenbelt.toml
 ```bash
 rm -rf ~/.claude/greenbelt
 ```
+
+## In Action
+
+![Ecologi](https://api.ecologi.com/badges/trees/69b932ffb5241f46d9b8e6c8?black=true&treeOnly=true)
