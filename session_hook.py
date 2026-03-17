@@ -2,16 +2,16 @@
 
 import json
 import os
-import sqlite3
 import sys
 import tomllib
 from datetime import datetime
 from datetime import UTC
 from pathlib import Path
 
+from db import append_usage, DB_PATH, get_total_trees, init_db
+
 
 CONFIG_PATH = Path(os.environ.get("GREENBELT_CONFIG", Path.home() / ".claude" / "greenbelt.toml"))
-DB_PATH = Path(os.environ.get("GREENBELT_DB", Path.home() / ".claude" / "greenbelt.sqlite3")) 
 
 CONFIG_TEMPLATE = """\
 provider = "ecologi"
@@ -39,52 +39,6 @@ def calculate_used_tokens(transcript_path: str) -> int:
         pass    # empty session
 
     return used_tokens
-
-
-def init_db() -> None:
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA synchronous=NORMAL")
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS usage_events (
-            id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            session_id  TEXT NOT NULL,
-            used_tokens INTEGER NOT NULL,
-            created_at  TEXT NOT NULL
-        )
-    """)
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_usage_events_created_at ON usage_events(created_at)")
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS planted_trees (
-            id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            used_tokens INTEGER NOT NULL,
-            num_trees   INTEGER NOT NULL,
-            provider    TEXT    NOT NULL,
-            created_at  TEXT    NOT NULL
-        )
-    """)
-    conn.close()
-
-
-def append_usage(*, session_id: str, used_tokens: int, timestamp: datetime) -> None:
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA synchronous=NORMAL")
-    with conn:
-        conn.execute(
-            "INSERT INTO usage_events (session_id, used_tokens, created_at) VALUES (?, ?, ?)",
-            (session_id, used_tokens, timestamp),
-        )
-    conn.close()
-
-
-def get_total_trees() -> int:
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA synchronous=NORMAL")
-    row = conn.execute("SELECT COALESCE(SUM(num_trees), 0) FROM planted_trees").fetchone()
-    conn.close()
-    return row[0]
 
 
 def start_session() -> None:
