@@ -4,6 +4,10 @@ Greenbelt tracks token usage across Claude Code sessions and plants trees whenev
 
 ## Get started
 
+**0. Sign Up to Ecologi**
+
+[Ecologi](https://ecologi.com) is a climate action platform that helps individuals and businesses take measurable, credible action for climate and nature. Fund tree planting from €0.80 (£0.60) per tree. File a feature request if you want to use a different provider.
+
 **1. Clone the repo**
 
 ```bash
