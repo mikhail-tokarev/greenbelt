@@ -8,9 +8,12 @@ from datetime import datetime
 from datetime import UTC
 from pathlib import Path
 
-from db import append_usage
-from db import get_total_trees
 from db import init_db
+from db import add_trees
+from db import add_usage
+from db import get_total_trees
+from db import get_unaccounted_usage
+from ecologi import plant_trees
 
 
 CONFIG_PATH = Path(os.environ.get("GREENBELT_CONFIG", Path.home() / ".claude" / "greenbelt.toml"))
@@ -54,9 +57,38 @@ def update_usage(config: dict, input_data: dict) -> None:
     if used_tokens == 0:
         return
 
-    append_usage(
+    add_usage(
         session_id=input_data["session_id"],
         used_tokens=used_tokens,
+        timestamp=datetime.now(UTC),
+    )
+
+    threshold = config["threshold"]
+    unaccounted_usage = get_unaccounted_usage()
+    trees_to_plant = unaccounted_usage // threshold
+    if trees_to_plant == 0:
+        return
+
+    provider = config["provider"]
+    if provider != "ecologi":
+        print(f"[greenbelt] Unsupported provider: {provider}", file=sys.stderr)
+        sys.exit(1)
+
+    api_key = config.get(provider, {}).get("api_key", "")
+    if not api_key:
+        print("[greenbelt] Warning: ecologi.api_key is blank; skipping tree planting", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        plant_trees(api_key, trees_to_plant, idempotency_key=input_data["session_id"])
+    except Exception as e:
+        print(f"[greenbelt] Failed to plant trees: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    add_trees(
+        used_tokens=trees_to_plant * threshold,
+        num_trees=trees_to_plant,
+        provider=provider,
         timestamp=datetime.now(UTC),
     )
 
