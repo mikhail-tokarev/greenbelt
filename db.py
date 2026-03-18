@@ -5,8 +5,10 @@ from pathlib import Path
 
 __all__ = [
     "init_db",
-    "append_usage",
+    "add_usage",
     "get_total_trees",
+    "get_unaccounted_usage",
+    "add_trees",
 ]
 
 DB_PATH = Path(os.environ.get("GREENBELT_DB", Path.home() / ".claude" / "greenbelt.sqlite3"))
@@ -45,7 +47,7 @@ def init_db() -> None:
     conn.close()
 
 
-def append_usage(*, session_id: str, used_tokens: int, timestamp: datetime) -> None:
+def add_usage(*, session_id: str, used_tokens: int, timestamp: datetime) -> None:
     conn = get_connection()
     with conn:
         conn.execute(
@@ -53,6 +55,27 @@ def append_usage(*, session_id: str, used_tokens: int, timestamp: datetime) -> N
             (session_id, used_tokens, timestamp),
         )
     conn.close()
+
+
+def add_trees(*, used_tokens: int, num_trees: int, provider: str, timestamp: datetime) -> None:
+    conn = get_connection()
+    with conn:
+        conn.execute(
+            "INSERT INTO planted_trees (used_tokens, num_trees, provider, created_at) VALUES (?, ?, ?, ?)",
+            (used_tokens, num_trees, provider, timestamp),
+        )
+    conn.close()
+
+
+def get_unaccounted_usage() -> int:
+    conn = get_connection()
+    row = conn.execute("""
+        SELECT
+          COALESCE((SELECT SUM(used_tokens) FROM usage_events), 0)
+          - COALESCE((SELECT SUM(used_tokens) FROM planted_trees), 0)
+    """).fetchone()
+    conn.close()
+    return row[0]
 
 
 def get_total_trees() -> int:
