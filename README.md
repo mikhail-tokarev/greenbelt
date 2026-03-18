@@ -1,6 +1,6 @@
 # Greenbelt 🌱
 
-Greenbelt tracks token usage across Claude Code sessions and plants trees whenever your token usage crosses a configurable threshold. It uses [Ecologi API](https://ecologi.com/) and runs as a Claude Code hook — no manual steps required after setup.
+Greenbelt tracks token usage across Claude Code sessions and plants trees whenever your token usage crosses a configurable threshold (1M tokens by default). It uses [Ecologi API](https://ecologi.com/) and runs as a Claude Code hook — no manual steps required after setup.
 
 ## Get started
 
