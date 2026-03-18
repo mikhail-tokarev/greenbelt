@@ -80,7 +80,7 @@ def update_usage(config: dict, input_data: dict) -> None:
         sys.exit(1)
 
     try:
-        plant_trees(api_key, trees_to_plant)
+        plant_trees(api_key, trees_to_plant, idempotency_key=input_data["session_id"])
     except Exception as e:
         print(f"[greenbelt] Failed to plant trees: {e}", file=sys.stderr)
         sys.exit(1)

@@ -1,10 +1,11 @@
 import http.client
 
 
-def plant_trees(api_key: str, number: int) -> None:
+def plant_trees(api_key: str, number: int, *, idempotency_key: str) -> None:
     """https://docs.ecologi.com/docs/public-api-docs/004342d262f93-purchase-trees"""
 
     headers = {
+        "Idempotency-Key": idempotency_key,
         "Content-Type": "application/json",
         "Accept": "application/json",
         "Authorization": f"Bearer {api_key}",
@@ -16,4 +17,4 @@ def plant_trees(api_key: str, number: int) -> None:
 
     response = conn.getresponse()
     if response.status != 201:
-        raise Exception(response.read().decode('utf-8'))
+        raise Exception(response.read().decode("utf-8"))
