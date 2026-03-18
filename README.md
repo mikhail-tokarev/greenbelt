@@ -78,5 +78,10 @@ rm -rf ~/.claude/greenbelt
 ```
 
 ## In Action
+<img width="972" height="497" alt="Screenshot 2026-03-18 at 11 43 08" src="https://github.com/user-attachments/assets/5eb23510-253b-44a7-845e-27764aefa004" />
+
+### Gallery
+
+Add your badge here if you use Greenbelt.
 
 ![Ecologi](https://api.ecologi.com/badges/trees/69b932ffb5241f46d9b8e6c8?black=true&treeOnly=true)
