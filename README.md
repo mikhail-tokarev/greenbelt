@@ -2,24 +2,21 @@
 
 Greenbelt tracks token usage across Claude Code sessions and plants trees whenever your token usage crosses a configurable threshold (1M tokens by default). It uses [Ecologi API](https://ecologi.com/) and runs as a Claude Code hook — no manual steps required after setup.
 
-## Get started
-
-**0. Sign Up to Ecologi**
-
 [Ecologi](https://ecologi.com) is a climate action platform that helps individuals and businesses take measurable, credible action for climate and nature. Fund tree planting from €0.80 (£0.60) per tree. File a feature request if you want to use a different provider.
 
-**1. Clone the repo**
+## Get started
 
-```bash
-git clone https://github.com/mikhail-tokarev/greenbelt.git ~/.claude/greenbelt
+Copy and paste the AI prompt:
+```
+Clone https://github.com/mikhail-tokarev/greenbelt into the ~/.claude folder and add the hooks as described in README.md
 ```
 
-**2. Register the hooks**
+**1. Register the hooks**
 
 Add the following to your Claude Code settings (`~/.claude/settings.json`):
 
 > [!IMPORTANT]
-> Replace `/path/to/greenbelt` with the actual path where you cloned the repo.
+> Replace `/path/to/greenbelt` with the absolute path where you cloned the repo.
 
 ```json
 {
@@ -48,7 +45,7 @@ Add the following to your Claude Code settings (`~/.claude/settings.json`):
 }
 ```
 
-**3. Configure Ecologi**
+**2. Configure Ecologi**
 
 On the first run, Greenbelt creates `~/.claude/greenbelt.toml` automatically:
 
