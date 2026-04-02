@@ -37,9 +37,15 @@ def calculate_used_tokens(transcript_path: str) -> int:
                     continue
 
                 transcript = json.loads(line)
-                usage = transcript.get("message", {}).get("usage", {})
-                used_tokens += usage.get("input_tokens", 0)
-                used_tokens += usage.get("output_tokens", 0)
+                match transcript["type"]:
+                    case "assistant":
+                        usage = transcript["message"]["usage"]
+                    case "progress" if transcript["data"]["type"] == "agent_progress" and transcript["data"]["message"]["type"] == "assistant":
+                        usage = transcript["data"]["message"]["message"]["usage"]
+                    case _:
+                        continue
+
+                used_tokens += usage["input_tokens"] + usage["output_tokens"]
     except FileNotFoundError:
         pass    # empty session
 
