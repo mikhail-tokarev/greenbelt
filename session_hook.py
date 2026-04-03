@@ -26,6 +26,25 @@ api_key = "" # get it from https://app.ecologi.com/impact-api
 """
 
 
+def _parse_usage(raw: str) -> int:
+    result = 0
+    try:
+        transcript = json.loads(raw)
+
+        if "totalTokens" in transcript.get("toolUseResult", {}):
+            result = transcript["toolUseResult"]["totalTokens"]
+        elif transcript["type"] == "assistant":
+            usage = transcript["message"]["usage"]
+            result = usage["input_tokens"] + usage["output_tokens"]
+        elif transcript["type"] == "progress" and transcript["data"]["type"] == "agent_progress" and transcript["data"]["message"]["type"] == "assistant":
+            usage = transcript["data"]["message"]["message"]["usage"]
+            result = usage["input_tokens"] + usage["output_tokens"]
+    except (json.JSONDecodeError, KeyError):
+        pass    # ignore
+
+    return result
+
+
 def calculate_used_tokens(transcript_path: str) -> int:
     used_tokens = 0
 
@@ -36,16 +55,7 @@ def calculate_used_tokens(transcript_path: str) -> int:
                 if not line:
                     continue
 
-                transcript = json.loads(line)
-                match transcript["type"]:
-                    case "assistant":
-                        usage = transcript["message"]["usage"]
-                    case "progress" if transcript["data"]["type"] == "agent_progress" and transcript["data"]["message"]["type"] == "assistant":
-                        usage = transcript["data"]["message"]["message"]["usage"]
-                    case _:
-                        continue
-
-                used_tokens += usage["input_tokens"] + usage["output_tokens"]
+                used_tokens += _parse_usage(line)
     except FileNotFoundError:
         pass    # empty session
 
