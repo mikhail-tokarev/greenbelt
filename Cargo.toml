@@ -1,0 +1,25 @@
+[package]
+name = "greenbelt"
+repository = "https://github.com/mikhail-tokarev/greenbelt"
+version = "0.1.0"
+edition = "2024"
+authors = ["Mikhail Tokarev"]
+license-file = "LICENSE"
+
+[lib]
+name = "greenbelt"
+path = "src/lib.rs"
+
+[[bin]]
+name = "greenbelt"
+path = "src/main.rs"
+
+[dependencies]
+anyhow     = "1"
+chrono     = { version = "0.4", default-features = false, features = ["std", "now"] }
+home       = "0.5"
+rusqlite   = { version = "0.35", features = ["bundled"] }
+serde      = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml       = "0.8"
+ureq       = { version = "2", features = ["json"] }
