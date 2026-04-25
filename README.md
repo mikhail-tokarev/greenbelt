@@ -1,6 +1,6 @@
 <p align="center">
-[![GitHub Repo stars](https://img.shields.io/github/stars/mikhail-tokarev/greenbelt)](https://github.com/mikhail-tokarev/greenbelt/stargazers)
-[![License](https://img.shields.io/github/license/mikhail-tokarev/greenbelt)](LICENSE)
+<a href="https://github.com/mikhail-tokarev/greenbelt/stargazers"><img src="https://img.shields.io/github/stars/mikhail-tokarev/greenbelt" alt="GitHub Repo stars"></a>
+<a href="LICENSE"><img src="https://img.shields.io/github/license/mikhail-tokarev/greenbelt" alt="MIT License"></a>
 </p>
 
 # Greenbelt 🌱
