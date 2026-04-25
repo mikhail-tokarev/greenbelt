@@ -88,6 +88,6 @@ rm -rf ~/.claude/greenbelt
 
 ## Gallery
 
-Add your badge here if you use Greenbelt.
+Showcase your impact with Ecologi. Find your badge in `Business toolkit` > `Dynamic logos`.
 
 ![Mike](https://api.ecologi.com/badges/trees/69b932ffb5241f46d9b8e6c8?black=true&treeOnly=true)
