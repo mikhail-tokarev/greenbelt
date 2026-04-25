@@ -90,4 +90,6 @@ rm -rf ~/.claude/greenbelt
 
 Showcase your impact with Ecologi. Find your badge in `Business toolkit` > `Dynamic logos`.
 
-![Mike](https://api.ecologi.com/badges/trees/69b932ffb5241f46d9b8e6c8?black=true&treeOnly=true)
+<p align="center">
+<a href="https://ecologi.com/tokarev?r=69b932ffb5241f46d9b8e6c8" target="_blank" rel="noopener noreferrer" title="View Ecologi profile" style="height:160px;display:inline-block;"><img alt="Mike" src="https://api.ecologi.com/badges/trees/69b932ffb5241f46d9b8e6c8?black=true&treeOnly=true" style="height:90px;" /></a>
+</p>
