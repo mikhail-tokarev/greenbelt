@@ -1,8 +1,16 @@
+<p align="center">
+[![GitHub Repo stars](https://img.shields.io/github/stars/mikhail-tokarev/greenbelt)](https://github.com/mikhail-tokarev/greenbelt/stargazers)
+[![License](https://img.shields.io/github/license/mikhail-tokarev/greenbelt)](LICENSE)
+</p>
+
 # Greenbelt 🌱
 
 Greenbelt tracks token usage across Claude Code sessions and plants trees whenever your token usage crosses a configurable threshold (1M tokens by default). It uses [Ecologi API](https://ecologi.com/) and runs as a Claude Code hook — no manual steps required after setup.
 
 [Ecologi](https://ecologi.com) is a climate action platform that helps individuals and businesses take measurable, credible action for climate and nature. Fund tree planting from €0.80 (£0.60) per tree. File a feature request if you want to use a different provider.
+
+## In Action
+<img width="972" height="497" alt="Screenshot 2026-03-18 at 11 43 08" src="https://github.com/user-attachments/assets/5eb23510-253b-44a7-845e-27764aefa004" />
 
 ## Get started
 
@@ -78,11 +86,8 @@ rm ~/.claude/greenbelt.toml
 rm -rf ~/.claude/greenbelt
 ```
 
-## In Action
-<img width="972" height="497" alt="Screenshot 2026-03-18 at 11 43 08" src="https://github.com/user-attachments/assets/5eb23510-253b-44a7-845e-27764aefa004" />
-
-### Gallery
+## Gallery
 
 Add your badge here if you use Greenbelt.
 
-![Ecologi](https://api.ecologi.com/badges/trees/69b932ffb5241f46d9b8e6c8?black=true&treeOnly=true)
+![Mike](https://api.ecologi.com/badges/trees/69b932ffb5241f46d9b8e6c8?black=true&treeOnly=true)
