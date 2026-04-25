@@ -1,5 +1,5 @@
 <p align="center">
-<a href="https://github.com/mikhail-tokarev/greenbelt/stargazers"><img src="https://img.shields.io/github/stars/mikhail-tokarev/greenbelt" alt="GitHub Repo stars"></a>
+<a href="https://github.com/mikhail-tokarev/greenbelt/stargazers"><img src="https://img.shields.io/github/stars/mikhail-tokarev/greenbelt?style=flat" alt="GitHub Repo stars"></a>
 <a href="LICENSE"><img src="https://img.shields.io/github/license/mikhail-tokarev/greenbelt" alt="MIT License"></a>
 </p>
 
