@@ -1,8 +1,3 @@
-<p align="center">
-<a href="https://github.com/mikhail-tokarev/greenbelt/stargazers"><img src="https://img.shields.io/github/stars/mikhail-tokarev/greenbelt?style=flat&cacheSeconds=3600" alt="GitHub Repo stars"></a>
-<a href="LICENSE"><img src="https://img.shields.io/github/license/mikhail-tokarev/greenbelt" alt="MIT License"></a>
-</p>
-
 # Greenbelt 🌱
 
 Greenbelt tracks token usage across Claude Code sessions and plants trees whenever your token usage crosses a configurable threshold (1M tokens by default). It uses [Ecologi API](https://ecologi.com/) and runs as a Claude Code hook — no manual steps required after setup.
