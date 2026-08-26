@@ -31,15 +31,14 @@ def _parse_usage(raw: str) -> int:
     try:
         transcript = json.loads(raw)
 
-        if "totalTokens" in transcript.get("toolUseResult", {}):
-            result = transcript["toolUseResult"]["totalTokens"]
-        elif transcript["type"] == "assistant":
+        if transcript["type"] == "assistant":
             usage = transcript["message"]["usage"]
             result = usage["input_tokens"] + usage["output_tokens"]
-        elif transcript["type"] == "progress" and transcript["data"]["type"] == "agent_progress" and transcript["data"]["message"]["type"] == "assistant":
-            usage = transcript["data"]["message"]["message"]["usage"]
-            result = usage["input_tokens"] + usage["output_tokens"]
-    except (json.JSONDecodeError, KeyError):
+        elif transcript["type"] == "attachment" and transcript["attachment"]["commandMode"] == "task-notification":
+            prompt = transcript["attachment"]["prompt"]
+            tokens_text = prompt.split("<subagent_tokens>")[1].split("</subagent_tokens>")[0]
+            result = int(tokens_text)
+    except (json.JSONDecodeError, KeyError, IndexError, ValueError):
         pass    # ignore
 
     return result
