@@ -44,7 +44,7 @@ def _parse_usage(raw: str) -> int:
     return result
 
 
-def calculate_used_tokens(transcript_path: str) -> int:
+def calculate_used_tokens(transcript_path: Path) -> int:
     used_tokens = 0
 
     try:
@@ -68,7 +68,7 @@ def print_progress() -> None:
 
 
 def update_usage(config: dict, input_data: dict) -> None:
-    used_tokens = calculate_used_tokens(input_data["transcript_path"])
+    used_tokens = calculate_used_tokens(Path(input_data["transcript_path"]))
     if used_tokens == 0:
         return
 
