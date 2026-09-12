@@ -6,8 +6,8 @@ from session_hook import calculate_used_tokens
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
 TRANSCRIPTS = [
-    (FIXTURES_DIR / "transcript_1.jsonl", 108414),
-    (FIXTURES_DIR / "transcript_2.jsonl", 15064),
+    (FIXTURES_DIR / "transcript_1.jsonl", 217677),
+    (FIXTURES_DIR / "transcript_2.jsonl", 84677),
 ]
 
 

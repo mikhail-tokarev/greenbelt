@@ -26,26 +26,9 @@ api_key = "" # get it from https://app.ecologi.com/impact-api
 """
 
 
-def _parse_usage(raw: str) -> int:
-    result = 0
-    try:
-        transcript = json.loads(raw)
-
-        if transcript["type"] == "assistant":
-            usage = transcript["message"]["usage"]
-            result = usage["input_tokens"] + usage["output_tokens"]
-        elif transcript["type"] == "attachment" and transcript["attachment"]["commandMode"] == "task-notification":
-            prompt = transcript["attachment"]["prompt"]
-            tokens_text = prompt.split("<subagent_tokens>")[1].split("</subagent_tokens>")[0]
-            result = int(tokens_text)
-    except (json.JSONDecodeError, KeyError, IndexError, ValueError):
-        pass    # ignore
-
-    return result
-
-
 def calculate_used_tokens(transcript_path: Path) -> int:
     used_tokens = 0
+    cost_state = None
 
     try:
         with open(transcript_path, "r") as f:
@@ -54,7 +37,13 @@ def calculate_used_tokens(transcript_path: Path) -> int:
                 if not line:
                     continue
 
-                used_tokens += _parse_usage(line)
+                transcript = json.loads(line)
+                if transcript["type"] == "cost-state":
+                    cost_state = transcript
+
+        if cost_state is not None:
+            for usage in cost_state["modelUsage"].values():
+                used_tokens += usage["inputTokens"] + usage["outputTokens"] + usage["cacheCreationInputTokens"]
     except FileNotFoundError:
         pass    # empty session
 
