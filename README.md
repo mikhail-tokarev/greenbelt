@@ -5,7 +5,7 @@ Greenbelt tracks token usage across Claude Code sessions and plants trees whenev
 [Ecologi](https://ecologi.com) is a climate action platform that helps individuals and businesses take measurable, credible action for climate and nature. Fund tree planting from €0.80 (£0.60) per tree. File a feature request if you want to use a different provider.
 
 ## In Action
-<img width="972" height="497" alt="Screenshot 2026-03-18 at 11 43 08" src="https://github.com/user-attachments/assets/5eb23510-253b-44a7-845e-27764aefa004" />
+<img width="972" height="497" alt="Screenshot 2026-10-16 at 19 22 02" src="https://github.com/user-attachments/assets/640f4be4-c6e1-4b20-9421-3a24e77439af" />
 
 ## Get started
 
